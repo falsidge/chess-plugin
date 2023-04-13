@@ -42,15 +42,16 @@ paths:
               schema:
                 $ref: '#/components/schemas/ASCIIboard'
   /chess/analysis/{username}:
-    post:
+    get:
       operationId: analyzeBoard
       summary: Analyze the current user's board
-      requestBody:
+      parameters:
+      - in: path
+        name: username
+        schema:
+            type: string
         required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/fenBoard'
+        description: The name of the user.
       responses:
         "200":
           description: OK
