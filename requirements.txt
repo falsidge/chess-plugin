@@ -1,2 +1,4 @@
 quart
 quart-cors
+aiohttp
+chess

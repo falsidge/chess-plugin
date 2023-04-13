@@ -6,9 +6,10 @@ info:
 servers:
   - url: http://localhost:5003
 paths:
+
   /chess/analysis:
     post:
-      operationId: getPosition
+      operationId: analyzeBoardFEN
       summary: Analyze a board with the board in FEN
       requestBody:
         required: true
@@ -40,6 +41,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ASCIIboard'
+  /chess/analysis/{username}:
+    post:
+      operationId: analyzeBoard
+      summary: Analyze the current user's board
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/fenBoard'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/cloud-eval'
   /chess/board/{username}:
     post:
       operationId: load_board

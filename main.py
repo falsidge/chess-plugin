@@ -15,7 +15,10 @@ async def load_board(username):
     request = await quart.request.get_json(force=True)
     FEN = request.get("fen", "")
     print(FEN)
-    _CHESS[username] = chess.Board(FEN)
+    if FEN == "":
+        _CHESS[username] = chess.Board()
+    else:
+        _CHESS[username] = chess.Board(FEN)
     return quart.Response(response="OK", status=200)
 @app.get("/chess/board/<string:username>")
 async def get_board(username):
@@ -46,7 +49,6 @@ async def valid_moves(username):
         
 @app.get("/chess/analysis/<string:username>")
 async def get_analysis(username):
-    request = await quart.request.get_json(force=True)
     board = _CHESS[username] = _CHESS.get(username, chess.Board())
     async with aiohttp.ClientSession() as session:
         async with session.get('https://lichess.org/api/cloud-eval',params={"fen":board.fen()}) as response:
@@ -73,7 +75,6 @@ async def post_display():
     return quart.Response(response=json.dumps(data), status=200)
 @app.get("/chess/display/<string:username>")
 async def get_display(username):
-    request = await quart.request.get_json(force=True)
     board = _CHESS[username] = _CHESS.get(username, chess.Board())
 
     data = {"display":board.unicode()}
