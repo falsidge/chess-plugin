@@ -27,7 +27,7 @@ paths:
   /chess/display:
     post:
       operationId: renderBoard
-      summary: Renders the board using ASCII art with the board in FEN
+      summary: Renders the board given FEN in ASCII or PNG
       requestBody:
         required: true
         content:
@@ -40,7 +40,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ASCIIboard'
+                $ref: '#/components/schemas/displayBoard'
   /chess/analysis/{username}:
     get:
       operationId: analyzeBoard
@@ -71,7 +71,6 @@ paths:
         required: true
         description: The name of the user.
       requestBody:
-        required: true
         content:
           application/json:
             schema:
@@ -100,7 +99,7 @@ paths:
   /chess/display/{username}:
     get:
       operationId: renderBoardUser
-      summary: Renders the board using ASCII art with the board in FEN of the current user
+      summary: Renders the board with the board of the current user using ASCII art or SVG Image url.
       parameters:
       - in: path
         name: username
@@ -114,7 +113,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ASCIIboard'                
+                $ref: '#/components/schemas/displayBoard'                
   /chess/make_move/{username}:
     post:
       operationId: make_move
@@ -186,12 +185,18 @@ components:
           type: string
           description: The board in FEN  
           required: true
-    ASCIIboard:
+    displayBoard:
       type: object
       properties:
         display:
-          type: string
-          description: The board displayed in ASCII
+          type: object
+          properties:
+            png:
+              type: string
+              description: The board displayed in PNG
+            ascii:
+              type: string
+              description: The board displayed in ASCII
     moveRequest:
       type: object
       properties:
