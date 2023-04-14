@@ -7,10 +7,10 @@ servers:
   - url: http://localhost:5003
 paths:
 
-  /chess/analysis:
+  /chess/analysis/lichess:
     post:
-      operationId: analyzeBoardFEN
-      summary: Analyze a board with the board in FEN
+      operationId: analyzeLichessBoardFEN
+      summary: Analyze a board with Lichess API with the board in FEN
       requestBody:
         required: true
         content:
@@ -24,6 +24,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/cloud-eval'
+
+  /chess/analysis/stockfish:
+    post:
+      operationId: analyzeStockfishBoardFEN
+      summary: Analyze a board with Stockfish with the board in FEN
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/fenBoard'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/stockfish-eval'
   /chess/display:
     post:
       operationId: renderBoard
@@ -41,10 +59,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/displayBoard'
-  /chess/analysis/{username}:
+  /chess/analysis/lichess/{username}:
     get:
-      operationId: analyzeBoard
-      summary: Analyze the current user's board
+      operationId: analyzeLichessBoard
+      summary: Analyze the current user's board with lichess
       parameters:
       - in: path
         name: username
@@ -59,6 +77,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/cloud-eval'
+  /chess/analysis/stockfish/{username}:
+    get:
+      operationId: analyzeStockfishBoard
+      summary: Analyze the current user's board with Stockfish
+      parameters:
+      - in: path
+        name: username
+        schema:
+            type: string
+        required: true
+        description: The name of the user.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/stockfish-eval'
   /chess/board/{username}:
     post:
       operationId: load_board
@@ -176,6 +212,25 @@ components:
                 type: number
                 description: Evaluation score
           description: List of positions for chess move
+    stockfish-eval:
+      type: object
+      properties:
+        move:
+          type: string
+          description: Best move in algebraic notation
+        ponder:
+          type: string
+          description: Expected response move in algebraic notation
+        draw_oferred:
+          type: bool
+          description: Whether a draw should be oferred
+        resigned: 
+          type: bool
+          description: Whether engine resigned 
+        score:
+          type: integer
+          description: Centipawn score of the current position
+        
     fenBoard:
       type: object
       required:

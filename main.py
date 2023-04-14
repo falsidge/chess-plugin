@@ -7,6 +7,7 @@ from quart import request
 
 import aiohttp
 import chess
+import chess.engine
 import chess.svg
 
 import cairosvg
@@ -15,6 +16,7 @@ app = quart_cors.cors(quart.Quart(__name__),
                       allow_origin="https://chat.openai.com")
 _CHESS = {}
 
+engine = chess.engine.SimpleEngine.popen_uci("stockfish.exe")
 
 @app.post("/chess/board/<string:username>")
 async def load_board(username):
@@ -59,18 +61,44 @@ async def valid_moves(username):
         map(lambda x: x.uci(), board.generate_legal_moves()))}
     return quart.Response(response=json.dumps(data), status=200)
 
-
-@app.get("/chess/analysis/<string:username>")
-async def get_analysis(username):
+@app.get("/chess/analysis/stockfish/<string:username>")
+async def get_stockfish_analysis(username):
     board = _CHESS[username] = _CHESS.get(username, chess.Board())
+    move = engine.play(board, chess.engine.Limit(time=0.1), info=chess.engine.INFO_ALL)
+    score = move.info["score"].relative.score(mate_score=1000000)
+    data = {"move":move.move.uci(), "ponder": move.ponder.uci(), "draw_offerred": move.draw_offered, "resigned": move.resigned , "score":score }
+
+    return quart.Response(response=json.dumps(data), status=200)
+
+
+
+
+@app.post("/chess/analysis/stockfish")
+async def post_stockfish_analysis():
+    request = await quart.request.get_json(force=True)
+    FEN = request.get("fen", "")
+    print(FEN)
+    board = chess.Board(FEN)
+    move = engine.play(board, chess.engine.Limit(time=0.1), info=chess.engine.INFO_ALL)
+    score = move.info["score"].relative.score(mate_score=1000000)
+    data = {"move":move.move.uci(), "ponder": move.ponder.uci(), "draw_offerred": move.draw_offered, "resigned": move.resigned , "score":score }
+
+    return quart.Response(response=json.dumps(data), status=200)
+
+
+
+@app.get("/chess/analysis/lichess/<string:username>")
+async def get_lichess_analysis(username):
+    board = _CHESS[username] = _CHESS.get(username, chess.Board())
+    engine
     async with aiohttp.ClientSession() as session:
         async with session.get('https://lichess.org/api/cloud-eval', params={"fen": board.fen()}) as response:
             data = await response.json()
             return quart.Response(response=json.dumps(data), status=200)
 
 
-@app.post("/chess/analysis")
-async def post_analysis():
+@app.post("/chess/analysis/lichess")
+async def post_lichess_analysis():
     request = await quart.request.get_json(force=True)
     FEN = request.get("fen", "")
     print(FEN)

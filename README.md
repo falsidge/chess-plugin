@@ -2,7 +2,7 @@
 
 A very basic chess plugin that interfaces with lichess and a chess library to allow ChatGPT to play chess
 
-# Plugins Quickstart
+## Plugins Quickstart
 
 Get a Todo list ChatGPT plugin up and running in under 5 minutes using Python. If you do not already have plugin developer access, please [join the waitlist](https://openai.com/waitlist/plugins).
 
